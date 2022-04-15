@@ -72,14 +72,18 @@ export class MarcadoresComponent implements AfterViewInit {
     const lngLatArr: MarcadorColor[] = JSON.parse(
       localStorage.getItem('marcadores')!
     );
+
     lngLatArr.forEach((m) => {
-      const marker = new mapboxgl.Marker({
+      const newMarker = new mapboxgl.Marker({
         color: m.color,
         draggable: true,
       })
         .setLngLat(m.centro!)
         .addTo(this.mapa);
-      this.marcadores.push({ color: m.color, marker });
+      this.marcadores.push({ color: m.color, marker: newMarker });
+      newMarker.on('dragend', () => {
+        this.guardarMarcadoresLocalStorage();
+      });
     });
   }
 
@@ -95,6 +99,15 @@ export class MarcadoresComponent implements AfterViewInit {
       .addTo(this.mapa);
 
     this.marcadores.push({ color, marker: nuevoMarcador });
+    this.guardarMarcadoresLocalStorage();
+    nuevoMarcador.on('dragend', () => {
+      this.guardarMarcadoresLocalStorage();
+    });
+  }
+
+  borrarMarcador(i: number) {
+    this.marcadores[i].marker!.remove();
+    this.marcadores.splice(i, 1);
     this.guardarMarcadoresLocalStorage();
   }
 }
